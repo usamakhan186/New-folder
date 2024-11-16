@@ -4,6 +4,7 @@ import { Menu, X, Eye, EyeOff, Heart, CircleUser, ChevronDown } from 'lucide-rea
 import Link from 'next/link';
 import Select from 'react-select';
 
+import Image from 'next/image';
 
 
 
@@ -55,6 +56,7 @@ const Navbar = () => {
     e.preventDefault();
     console.log('Login attempt with:', { email, password });
   };
+
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -421,8 +423,14 @@ const Navbar = () => {
             {/* Logo and Left Menu Items */}
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <Link href="/" className="text-xl font-bold text-gray-900">
-                  LOGO
+                <Link href="/" className="text-xl font-bold text-white">
+                  <Image
+                    src="/Logo/logo.png" // Correct path to your image
+                    alt="Logo" // Accessible description
+                    width={50} // Image width
+                    height={50} // Image height
+                    className="inline-block" // Styling for the image
+                  />
                 </Link>
                 <span className="text-gray-200 text-2xl mx-5">|</span>
               </div>
@@ -448,15 +456,15 @@ const Navbar = () => {
                   </Link>
                   <Link
                     href="/import__process"
-                     className="text-white hover:text-gray-900 hover:bg-gray-50/40 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    className="text-white hover:text-gray-900 hover:bg-gray-50/40 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                   >
                     Import process
                   </Link>
                   <Link
                     href="/dealer"
-                     className="text-white hover:text-gray-900 hover:bg-gray-50/40 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                    className="text-white hover:text-gray-900 hover:bg-gray-50/40 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                   >
-                    Blog  
+                    Blog
                   </Link>
                 </div>
               </div>
@@ -464,7 +472,7 @@ const Navbar = () => {
 
             {/* Right Menu Items */}
             <div className="flex items-center space-x-4">
-              <Heart className="text-zinc-900 hover:text-red-500 cursor-pointer" />
+              <Heart className="text-gray-100 hover:text-red-500 cursor-pointer" />
               <Select
                 options={languageOptions}
                 defaultValue={languageOptions[0]}
@@ -485,8 +493,8 @@ const Navbar = () => {
               >
                 {/* User Icon with Dropdown Trigger */}
                 <div className="flex items-center cursor-pointer">
-                  <CircleUser className="h-6 w-6 text-zinc-900" />
-                  <ChevronDown className="text-zinc-900" />
+                  <CircleUser className="h-6 w-6 text-white" />
+                  <ChevronDown className="text-white" />
                 </div>
 
                 {/* Dropdown Menu */}
