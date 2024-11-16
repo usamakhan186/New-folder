@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "/node_modules/flag-icons/css/flag-icons.min.css";
 
 @layer utilities {
     .scrollbar-none::-webkit-scrollbar {

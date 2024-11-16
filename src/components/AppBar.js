@@ -1,7 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Eye, EyeOff } from 'lucide-react';
+import { Menu, X, Eye, EyeOff, Heart, CircleUser, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import Select from 'react-select';
+
+
+
+
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,7 +26,8 @@ const Navbar = () => {
     postalCode: '',
     agreeToTerms: false
   });
-  const [showEmailForm, setShowEmailForm] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
   // Handle scroll effect
   useEffect(() => {
@@ -54,24 +60,72 @@ const Navbar = () => {
     e.preventDefault();
     console.log('Signup attempt with:', formData);
   };
+  let hideDropdownTimeout;
+
+  const handleMouseEnter = () => {
+    // Clear any pending timeout to keep the dropdown visible
+    clearTimeout(hideDropdownTimeout);
+    setIsDropdownVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    // Set a delay before hiding the dropdown
+    hideDropdownTimeout = setTimeout(() => {
+      setIsDropdownVisible(false);
+    }, 200); // Adjust the delay as needed
+  };
+
+  useEffect(() => {
+    // Clear the timeout when component unmounts to prevent memory leaks
+    return () => clearTimeout(hideDropdownTimeout);
+  }, []);
+
+  const languageOptions = [
+    { value: 'EN', label: 'English', flag: '/flags/en.png' },
+
+    { value: 'ES', label: 'Español', flag: '/flags/es.png' }, // Added Spanish option
+  ];
+  // Add more languages with respective flag images
+
+
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      borderRadius: '9999px', // Circular shape
+      padding: '2px 4px',
+      minWidth: '80px',
+    }),
+    option: (provided) => ({
+      ...provided,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '8px 12px',
+    }),
+    singleValue: (provided) => ({
+      ...provided,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px',
+    }),
+  };
+
 
   const LoginModal = () => (
     <div
-      className={`fixed inset-0 flex z-50 items-center justify-center ${
-        showLoginModal ? 'opacity-100' : 'opacity-0 pointer-events-none'
-      } transition-opacity duration-300`}
-    >   
+      className={`fixed inset-0 flex z-50 items-center justify-center ${showLoginModal ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        } transition-opacity duration-300`}
+    >
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={() => setShowLoginModal(false)}
       />
 
       {/* Modal */}
-      <div 
-        className={`relative bg-red-50/85 rounded-lg w-full max-w-md transform transition-all duration-300 ${
-          showLoginModal ? 'scale-100' : 'scale-95'
-        }`}
+      <div
+        className={`relative bg-red-50/85 rounded-lg w-full max-w-md transform transition-all duration-300 ${showLoginModal ? 'scale-100' : 'scale-95'
+          }`}
         role="dialog"
         aria-modal="true"
       >
@@ -178,24 +232,22 @@ const Navbar = () => {
 
   const SignupModal = () => (
     <div
-    className={`fixed inset-0 flex z-50 items-center justify-center ${
-        showSignupModal ? 'opacity-100' : 'opacity-0 pointer-events-none'
-      } transition-opacity duration-300`}
+      className={`fixed inset-0 flex z-50 items-center justify-center ${showSignupModal ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        } transition-opacity duration-300`}
     >
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={() => setShowSignupModal(false)}
       />
 
       {/* Modal */}
-      <div 
-      className={`relative bg-red-50/85 rounded-lg w-full max-w-md max-h-[90vh] transform transition-all duration-300 ${
-        showSignupModal ? 'scale-100' : 'scale-95'
-      }`}
-    >
-      <div className="px-8 pt-8 pb-6 max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-red-200 scrollbar-track-transparent hover:scrollbar-thumb-red-300">
-      <div className="flex justify-between items-center mb-6">
+      <div
+        className={`relative bg-red-50/85 rounded-lg w-full max-w-md max-h-[90vh] transform transition-all duration-300 ${showSignupModal ? 'scale-100' : 'scale-95'
+          }`}
+      >
+        <div className="px-8 pt-8 pb-6 max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-red-200 scrollbar-track-transparent hover:scrollbar-thumb-red-300">
+          <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-red-600">Create Account</h2>
             <button
               onClick={() => setShowSignupModal(false)}
@@ -236,113 +288,125 @@ const Navbar = () => {
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
               </div>
+
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 text-gray-500">or via e-mail</span>
+                {/* Only show the button if showForm is false */}
+                {!showForm && (
+                  <button
+                    onClick={() => setShowForm(true)}
+                    className="px-4 py-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  >
+                    Sign up with email
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Signup Form */}
-            <form onSubmit={handleSignup} className="space-y-4">
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                placeholder="Email"
-                className="w-full px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
-              />
-
-              <div className="relative">
+            {showForm && (
+              <form onSubmit={handleSignup} className="space-y-4">
                 <input
-                  type={showPassword ? "text" : "password"}
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                  placeholder="Password (min. 8 characters)"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="Email"
                   className="w-full px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
                 />
+
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    placeholder="Password (min. 8 characters)"
+                    className="w-full px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Name"
+                    className="px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
+                  />
+                  <input
+                    type="text"
+                    value={formData.surname}
+                    onChange={(e) => setFormData({ ...formData, surname: e.target.value })}
+                    placeholder="Surname"
+                    className="px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+
+                <div className="flex space-x-2">
+                  <select
+                    className="w-24 px-2 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
+                    value={formData.countryCode}
+                    onChange={(e) => setFormData({ ...formData, countryCode: e.target.value })}
+                  >
+                    <option>+34</option>
+                  </select>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="Telephone number"
+                    className="flex-1 px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <select
+                    className="px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
+                    value={formData.country}
+                    onChange={(e) => setFormData({ ...formData, country: e.target.value })}
+                  >
+                    <option value="">Select country</option>
+                  </select>
+                  <input
+                    type="text"
+                    value={formData.postalCode}
+                    onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                    placeholder="Postal code"
+                    className="px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="terms"
+                    checked={formData.agreeToTerms}
+                    onChange={(e) => setFormData({ ...formData, agreeToTerms: e.target.checked })}
+                    className="rounded border-red-200 text-red-500 focus:ring-red-200"
+                  />
+                  <label htmlFor="terms" className="text-sm text-gray-600">
+                    I agree to the processing of{' '}
+                    <a href="#" className="text-red-500 hover:text-red-600">
+                      personal data
+                    </a>
+                    .
+                  </label>
+                </div>
+
                 <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  type="submit"
+                  className="w-full px-4 py-3 text-white bg-red-500 hover:bg-red-600 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                 >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  Register
                 </button>
-              </div>
+              </form>
+            )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  placeholder="Name"
-                  className="px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
-                />
-                <input
-                  type="text"
-                  value={formData.surname}
-                  onChange={(e) => setFormData({...formData, surname: e.target.value})}
-                  placeholder="Surname"
-                  className="px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
-                />
-              </div>
-
-              <div className="flex space-x-2">
-                <select 
-                  className="w-24 px-2 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
-                  value={formData.countryCode}
-                  onChange={(e) => setFormData({...formData, countryCode: e.target.value})}
-                >
-                  <option>+92</option>
-                </select>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  placeholder="Telephone number"
-                  className="flex-1 px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <select 
-                  className="px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
-                  value={formData.country}
-                  onChange={(e) => setFormData({...formData, country: e.target.value})}
-                >
-                  <option value="">Select country</option>
-                </select>
-                <input
-                  type="text"
-                  value={formData.postalCode}
-                  onChange={(e) => setFormData({...formData, postalCode: e.target.value})}
-                  placeholder="Postal code"
-                  className="px-4 py-3 border bg-red-50/70 border-red-200 rounded-lg focus:ring-2 focus:ring-red-200 focus:border-transparent outline-none transition-all"
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  checked={formData.agreeToTerms}
-                  onChange={(e) => setFormData({...formData, agreeToTerms: e.target.checked})}
-                  className="rounded border-red-200 text-red-500 focus:ring-red-200"
-                />
-                <label htmlFor="terms" className="text-sm text-gray-600">
-                  I agree to the processing of{' '}
-                  <a href="#" className="text-red-500 hover:text-red-600">
-                    personal data
-                  </a>
-                  .
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                className="w-full px-4 py-3 text-white bg-red-500 hover:bg-red-600 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-              >
-                Register
-              </button>
-            </form>
           </div>
         </div>
       </div>
@@ -356,64 +420,96 @@ const Navbar = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo and Left Menu Items */}
             <div className="flex items-center">
-                <div className="flex-shrink-0 flex items-center">
-                  <Link href="/" className="text-xl font-bold text-gray-900">
-                    LOGO
+              <div className="flex-shrink-0 flex items-center">
+                <Link href="/" className="text-xl font-bold text-gray-900">
+                  LOGO
+                </Link>
+                <span className="text-gray-200 text-2xl mx-5">|</span>
+              </div>
+              <div className="hidden md:block">
+                <div className="flex items-center space-x-1">
+                  <Link
+                    href="/cars"
+                    className="text-white hover:text-gray-900 hover:bg-gray-50/40 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Search
                   </Link>
-                  <span className="text-gray-200 text-2xl mx-5">|</span>
+                  <Link
+                    href="/sell"
+                    className="text-white hover:text-gray-900 hover:bg-gray-50/40 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Best Deals
+                  </Link>
+                  <Link
+                    href="/dealer"
+                    className="text-white hover:text-gray-900 hover:bg-gray-50/40 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Services
+                  </Link>
+                  <Link
+                    href="/import__process"
+                     className="text-white hover:text-gray-900 hover:bg-gray-50/40 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Import process
+                  </Link>
+                  <Link
+                    href="/dealer"
+                     className="text-white hover:text-gray-900 hover:bg-gray-50/40 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                  >
+                    Blog  
+                  </Link>
                 </div>
-                <div className="hidden md:block">
-                  <div className="flex items-center space-x-1">
-                    <Link 
-                      href="/cars" 
-                      className="text-gray-700 hover:text-gray-900 hover:bg-gray-50/40 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                      Search
-                    </Link>
-                    <Link 
-                      href="/sell" 
-                      className="text-gray-700 hover:text-gray-900 hover:bg-gray-50/40 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                      Best Deals
-                    </Link>
-                    <Link 
-                      href="/dealer" 
-                      className="text-gray-700 hover:bg-gray-50/40 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                      Services
-                    </Link>
-                    <Link 
-                      href="/import__process" 
-                      className="text-gray-700 hover:bg-gray-50/40 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                      Import process
-                    </Link>
-                    <Link 
-                      href="/dealer" 
-                      className="text-gray-700 hover:bg-gray-50/40 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                    >
-                      Blog
-                    </Link>
-                  </div>
-                </div>
+              </div>
             </div>
 
             {/* Right Menu Items */}
-            <div className="hidden md:flex items-center space-x-4">
-              <button
-                onClick={() => setShowLoginModal(true)}
-                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm"
+            <div className="flex items-center space-x-4">
+              <Heart className="text-zinc-900 hover:text-red-500 cursor-pointer" />
+              <Select
+                options={languageOptions}
+                defaultValue={languageOptions[0]}
+                styles={customStyles}
+                formatOptionLabel={(option) => (
+                  <div className="flex items-center">
+                    {option.flag && <img src={option.flag} alt="" className="w-5 h-5 rounded-full" />}
+                    <span className="ml-2">{option.label}</span>
+                  </div>
+                )}
+                isSearchable={false}
+              />
+
+              <div
+                className="relative inline-block text-left"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
               >
-                My Account
-              </button>
-              <button
-                onClick={() => setShowSignupModal(true)}
-                className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md text-sm font-medium shadow-sm"
-              >
-                Sign Up
-              </button>
+                {/* User Icon with Dropdown Trigger */}
+                <div className="flex items-center cursor-pointer">
+                  <CircleUser className="h-6 w-6 text-zinc-900" />
+                  <ChevronDown className="text-zinc-900" />
+                </div>
+
+                {/* Dropdown Menu */}
+                {isDropdownVisible && (
+                  <div className="absolute left-0 mt-2 w-40 bg-white rounded-md shadow-lg py-2 z-20">
+                    <button
+                      onClick={() => setShowLoginModal(true)}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm"
+                    >
+                      My Account
+                    </button>
+                    <button
+                      onClick={() => setShowSignupModal(true)}
+                      className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 text-sm"
+                    >
+                      Sign Up
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
+            {/* Right Menu Items closed */}
             {/* Mobile Menu Button */}
             <div className="md:hidden">
               <button
